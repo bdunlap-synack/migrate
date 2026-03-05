@@ -130,7 +130,9 @@ func WithInstance(instance *sql.DB, config *Config) (database.Driver, error) {
 	}
 
 	if err := px.ensureVersionTable(); err != nil {
-		conn.Close()
+		if errC := conn.Close(); err != nil {
+			err = errors.Join(err, errC)
+		}
 
 		return nil, err
 	}
